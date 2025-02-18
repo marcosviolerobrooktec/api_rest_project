@@ -1,70 +1,45 @@
-const { body, param, query, validationResult } = require('express-validator');
+const Joi = require('joi');
 
-const validateRegister = [
-    body('email').isEmail().withMessage('Correo electrónico inválido'),
-    body('password')
-      .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
-      .matches(/\d/).withMessage('La contraseña debe contener al menos un número'),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      next();
-    }
-  ];
+const registerSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'string.email': 'Correo electrónico inválido',
+    'any.required': 'El correo electrónico es obligatorio'
+  }),
+  password: Joi.string().min(6).pattern(/\d/).required().messages({
+    'string.min': 'La contraseña debe tener al menos 6 caracteres',
+    'string.pattern.base': 'La contraseña debe contener al menos un número',
+    'any.required': 'La contraseña es obligatoria'
+  })
+});
 
-  const validateLogin = [
-    body('email').isEmail().withMessage('Correo electrónico inválido'),
-    body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      next();
-    }
-  ];
+const loginSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'string.email': 'Correo electrónico inválido',
+    'any.required': 'El correo electrónico es obligatorio'
+  }),
+  password: Joi.string().min(6).required().messages({
+    'string.min': 'La contraseña debe tener al menos 6 caracteres',
+    'any.required': 'La contraseña es obligatoria'
+  })
+});
 
-  const validateEmail = [
-    query('email').isEmail().withMessage('Correo electrónico inválido'),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      next();
-    }
-  ];
+const emailSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    'string.email': 'Correo electrónico inválido',
+    'any.required': 'El correo electrónico es obligatorio'
+  })
+});
 
-  const validateUpdateEmail = [
-    param('id').isInt().withMessage('ID de usuario debe ser un número entero'),
-    body('email').isEmail().withMessage('Correo electrónico inválido'),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      next();
-    }
-  ];
+const idSchema = Joi.object({
+  id: Joi.number().integer().required().messages({
+    'number.base': 'El ID debe ser un número entero',
+    'any.required': 'El ID es obligatorio'
+  })
+});
 
-  const validateId = [
-    param('id').isInt().withMessage('ID de usuario debe ser un número entero'),
-    (req, res, next) => {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-      next();
-    }
-  ];
-
-  module.exports = {
-    validateRegister,
-    validateLogin,
-    validateUpdateEmail,
-    validateEmail,
-    validateId
-  };
-  
+module.exports = {
+  registerSchema,
+  loginSchema,
+  emailSchema,
+  idSchema
+};
