@@ -5,10 +5,10 @@ const { registerSchema, loginSchema, idSchema, emailSchema} = require('../middle
 const validateRequest = require('../middleware/validationSchema');
 const router = express.Router();
 
-router.post('/register', validateRequest(registerSchema), register);
-router.post('/login', validateRequest(loginSchema), login);
+router.post('/register', validateRequest(registerSchema, 'body'), register);
+router.post('/login', validateRequest(loginSchema, 'body'), login);
 
-router.get('/users', authenticateToken, getUsers);
+router.get('/users', getUsers);
 router.get('/users/id/:id', validateRequest(idSchema, 'params'), getUserById);
 router.get('/users/email', validateRequest(emailSchema, 'query'), getUserByEmail);
 
