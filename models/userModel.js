@@ -20,6 +20,14 @@ module.exports = (sequelize, DataTypes) => {
     age: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    profilePicture: {
+      type: DataTypes.STRING,
+      allowNull: true, 
+      get() {
+        const rawValue = this.getDataValue('profilePicture');
+        return rawValue ? `${process.env.BASE_URL}/public/${rawValue}` : null;
+      }
     }
   });
 
