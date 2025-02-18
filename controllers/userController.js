@@ -116,5 +116,27 @@ async function deleteUser(req, res) {
   }
 }
 
+async function updateProfilePhoto(req, res) {
+  try {
+    const { id } = req.params;
+    const user = await User.findByPk(id);
 
-module.exports = { register, login, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser};
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No se ha subido ninguna imagen' });
+    }
+
+    user.profilePicture = req.file.filename;
+    await user.save();
+
+    res.status(200).json({ message: 'Foto de perfil actualizada', user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+module.exports = { register, login, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto};

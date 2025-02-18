@@ -11,6 +11,8 @@ app.use('/api', routes);
 
 const PORT = process.env.PORT;
 
+app.use('/public', express.static('public'));
+
 sequelize.sync().then(() => {
   app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
