@@ -1,3 +1,5 @@
+const path = require('path');
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
@@ -26,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true, 
       get() {
         const rawValue = this.getDataValue('profilePicture');
-        return rawValue ? `${process.env.BASE_URL}/public/${rawValue}` : null;
+        return rawValue ? path.resolve(rawValue) : null;
       }
     }
   });
