@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true, 
       get() {
         const rawValue = this.getDataValue('profilePicture');
-        return rawValue ? path.join('http://localhost:5000', 'public', rawValue) : null;
+        return rawValue ? path.resolve(rawValue) : null;
       }
     }
   });

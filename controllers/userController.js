@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const {User} = require('../models');
 
 async function register(req, res) {
@@ -128,8 +129,8 @@ async function updateProfilePhoto(req, res) {
     if (!req.file) {
       return res.status(400).json({ message: 'No se ha subido ninguna imagen' });
     }
-
-    user.profilePicture = req.file.filename;
+    const imagePath=path.join('public',req.file.filename)
+    user.profilePicture = imagePath;
     await user.save();
 
     res.status(200).json({ message: 'Foto de perfil actualizada', user });
