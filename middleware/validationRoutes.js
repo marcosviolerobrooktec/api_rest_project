@@ -37,9 +37,34 @@ const idSchema = Joi.object({
   })
 });
 
+const companyNameSchema = Joi.object({
+  name: Joi.string()
+    .required()
+    .messages({
+      'string.base': 'El nombre de la empresa debe ser una cadena de texto',
+      'string.empty': 'El nombre de la empresa no puede estar vacío',
+      'any.required': 'El nombre de la empresa es obligatorio'
+    })
+});
+
+// Esquema de validación para el color
+const companyColorSchema = Joi.object({
+  color: Joi.string()
+    .pattern(/^#[0-9A-F]{6}$/i)
+    .required()
+    .messages({
+      'string.base': 'El color debe ser una cadena de texto',
+      'string.empty': 'El color no puede estar vacío',
+      'string.pattern.base': 'El color debe tener un formato hexadecimal válido (#RRGGBB)',
+      'any.required': 'El color es obligatorio'
+    })
+});
+
 module.exports = {
   registerSchema,
   loginSchema,
   emailSchema,
-  idSchema
+  idSchema,
+  companyNameSchema,
+  companyColorSchema
 };
