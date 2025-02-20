@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const {Op} = require('sequelize');
 const {User, Company} = require('../models');
 
 async function register(req, res) {
@@ -65,7 +66,23 @@ async function login(req, res) {
 
 async function getUsers(req, res) {
   try {
-    const users = await User.findAll({ 
+    const { name, email, companyId } = req.query;
+
+    const where = {};
+
+    if (name) {
+      where.name = { [Op.iLike]: `%${name}%` };
+    }
+
+    if (email) {
+      where.email = { [Op.iLike]: `%${email}%` }; 
+    }
+
+    if (companyId) {
+      where.companyId = companyId; 
+    }
+    const users = await User.findAll({
+      where, 
       attributes: { exclude: ['password'] },
       include: {
         model: Company,
@@ -80,11 +97,19 @@ async function getUsers(req, res) {
 }
 
 async function getCompanies(req, res) {
+  const { name } = req.query;
+
   try {
-    const companies = await Company.findAll();
-    res.status(200).json(companies);
+    const company = await Company.findOne({ where: { name: name }});
+
+    if (!company) {
+      return res.status(404).json({ message: 'Compañía no encontrada' });
+    }
+
+    res.status(200).json(company);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error al obtener la compañía:', error);
+    res.status(500).json({ message: 'Error al obtener la compañia' });
   }
 }
 
