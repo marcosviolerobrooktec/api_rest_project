@@ -23,27 +23,6 @@ async function register(req, res) {
   }
 }
 
-async function login(req, res) {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ message: 'Usuario no encontrado' });
-    }
-
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(401).json({ message: 'Contraseña incorrecta' });
-    }
-
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ message: 'Inicio de sesión exitoso', token });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-}
-
 async function getUsers(req, res) {
   try {
     const users = await User.findAll({ 
@@ -159,4 +138,4 @@ async function updateProfilePhoto(req, res) {
 }
 
 
-module.exports = { register, login, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto};
+module.exports = { register, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto};
