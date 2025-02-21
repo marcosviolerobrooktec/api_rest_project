@@ -30,8 +30,23 @@ module.exports = (sequelize, DataTypes) => {
         const rawValue = this.getDataValue('profilePicture');
         return rawValue ? path.resolve(rawValue) : null;
       }
+    },
+    companyId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Companies',
+        key: 'id',
+      },
+      allowNull: false,
     }
   });
+
+  User.associate = function(models){
+    User.belongsTo(models.Company, {
+      foreignKey: 'companyId',
+      as: 'company'
+    });
+  };
 
   return User;
 };
