@@ -97,10 +97,15 @@ async function getUsers(req, res) {
 }
 
 async function getCompanies(req, res) {
-  const { name } = req.query;
-
   try {
-    const company = await Company.findOne({ where: { name: name }});
+    const { name } = req.query;
+    const where = {};
+
+    if(name){
+      where.name = {[Op.iLike]: `%${name}%` };
+    }
+
+    const company = await Company.findAll({where});
 
     if (!company) {
       return res.status(404).json({ message: 'Compañía no encontrada' });
