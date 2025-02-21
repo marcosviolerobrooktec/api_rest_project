@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-const {User} = require('../models');
+const {User,Company} = require('../models');
 
 async function register(req, res) {
   try {
@@ -46,7 +46,14 @@ async function login(req, res) {
 
 async function getUsers(req, res) {
   try {
-    const users = await User.findAll({ attributes: { exclude: ['password'] } });
+    const users = await User.findAll({ 
+      attributes: { exclude: ['password'] },
+      include: {
+        model: Company,
+        as: 'company',
+        attributes: ['name']
+      }
+     });
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -55,7 +62,13 @@ async function getUsers(req, res) {
 
 async function getUserById(req, res) {
   try {
-    const user = await User.findByPk(req.params.id, { attributes: { exclude: ['password'] } });
+    const user = await User.findByPk(req.params.id, { attributes: { exclude: ['password'] },
+      include: {
+        model: Company,
+        as: 'company',
+        attributes: ['name']
+      } 
+    });
 
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -71,7 +84,13 @@ async function getUserByEmail(req, res) {
   const { email } = req.query;
 
   try {
-    const user = await User.findOne({ where: { email: email } });
+    const user = await User.findOne({ where: { email: email }, attributes: {exclude: ['password']},
+      include: {
+        model: Company,
+        as: 'company',
+        attributes: ['name']
+      } 
+    });
 
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });

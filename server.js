@@ -1,17 +1,21 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const {sequelize} = require('./models/index')
-const routes = require('./routes/userRoutes')
+const {sequelize} = require('./models/index');
+const userRoutes = require('./routes/userRoutes');
+const companyRoutes = require('./routes/companyRoutes');
+const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
-app.use('/api', routes);
+app.use('/api/users', userRoutes);
+app.use('/api/companies', companyRoutes);
+app.use('/public', express.static('public'));
+app.use(errorHandler);
+
 
 const PORT = process.env.PORT;
-
-app.use('/public', express.static('public'));
 
 sequelize.sync().then(() => {
   app.listen(PORT, () => {
