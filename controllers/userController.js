@@ -98,6 +98,28 @@ async function getUserByEmail(req, res) {
   }
 }
 
+async function getUsersByCompany(req, res) {
+  const {companyId} = req.query;
+  try {
+    const user = await User.findAll({ where: { companyId: companyId }, attributes: {exclude: ['password']},
+      include: {
+        model: Company,
+        as: 'company',
+        attributes: ['name','id']
+      } 
+    });
+
+    if (user.length == 0) {
+      return res.status(404).json({ message: 'No hay usuarios asignados a esa compañía' });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error al obtener los usuarios:', error);
+    res.status(500).json({ message: 'Error al obtener los usuarios' });
+  }
+}
+
 async function updateEmail(req, res) {
   try {
     const { email } = req.body;
@@ -154,4 +176,4 @@ async function updateProfilePhoto(req, res) {
 }
 
 
-module.exports = { register, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto};
+module.exports = { register, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto, getUsersByCompany};

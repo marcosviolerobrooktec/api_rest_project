@@ -16,7 +16,13 @@ const registerValidation = {
 
   const idValidation = {
     params: Joi.object({
-      id: Joi.number().integer()
+      id: Joi.number().integer().required()
+    })
+  };
+
+  const idCompanyValidation = {
+    query: Joi.object({
+      companyId: Joi.number().integer().required()
     })
   };
 
@@ -42,4 +48,4 @@ const registerValidation = {
       companyId: Joi.number().integer().optional()
     })
   };
-module.exports = {registerValidation,loginValidation,idValidation,emailQueryValidation,updateEmailValidation,getUsersValidation};
+module.exports = {registerValidation,loginValidation,idValidation,emailQueryValidation,updateEmailValidation,getUsersValidation,idCompanyValidation};

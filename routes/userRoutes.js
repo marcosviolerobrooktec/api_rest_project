@@ -1,8 +1,8 @@
 const express = require('express');
-const { register, login, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto} = require('../controllers/userController');
+const { register, login, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto, getUsersByCompany} = require('../controllers/userController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const { validate } = require('express-validation');
-const { registerValidation, idValidation, emailQueryValidation, updateEmailValidation, getUsersValidation} = require('../middleware/validationUser');
+const { registerValidation, idValidation, emailQueryValidation, updateEmailValidation, getUsersValidation,idCompanyValidation} = require('../middleware/validationUser');
 const upload = require('../middleware/uploadPhoto');
 const router = express.Router();
 
@@ -10,6 +10,7 @@ router.post('/', validate(registerValidation), register);
 
 router.get('/', validate(getUsersValidation), getUsers);
 router.get('/email', validate(emailQueryValidation), getUserByEmail);
+router.get('/usersCompany',validate(idCompanyValidation),getUsersByCompany);
 router.get('/:id', validate(idValidation), getUserById);
 
 router.put('/:id', validate(updateEmailValidation), authenticateToken, updateEmail);
