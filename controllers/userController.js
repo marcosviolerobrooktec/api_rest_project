@@ -25,7 +25,7 @@ async function register(req, res) {
 
 async function getUsers(req, res) {
   try {
-    const { name, email, companyId } = req.query;
+    const { name, email, companyIds } = req.query;
 
     const where = {};
 
@@ -37,8 +37,10 @@ async function getUsers(req, res) {
       where.email = { [Op.iLike]: `%${email}%` }; 
     }
 
-    if (companyId) {
-      where.companyId = companyId; 
+    if (companyIds) {
+      let companyIdArray;
+      companyIdArray = companyIds.split(',').map(id => parseInt(id));
+      where.companyId = { [Op.in]: companyIdArray }; 
     }
     const users = await User.findAll({
       where, 
