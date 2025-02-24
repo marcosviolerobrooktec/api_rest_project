@@ -16,5 +16,17 @@ const config = {
       expiresIn: '12h',
     },
   },
+  test: {
+    username: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    dialect: 'postgres',
+    logging: false,
+    auth: {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '12h',
+    }
+  },
 };
 module.exports = config;
