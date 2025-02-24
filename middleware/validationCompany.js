@@ -6,6 +6,12 @@ const companyNameValidation = {
       })
   };
 
+  const getCompanyValidation = {
+    query: Joi.object({
+      name: Joi.string().optional()
+    })
+  };
+
   const companyColorValidation = {
     query: Joi.object({
       color: Joi.string()
@@ -19,4 +25,4 @@ const companyNameValidation = {
     })
   };
   
-  module.exports = {companyNameValidation,companyColorValidation,idValidation};
+  module.exports = {companyNameValidation,companyColorValidation,idValidation,getCompanyValidation};

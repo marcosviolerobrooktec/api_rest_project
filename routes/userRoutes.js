@@ -2,13 +2,13 @@ const express = require('express');
 const { register, login, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto} = require('../controllers/userController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const { validate } = require('express-validation');
-const { registerValidation, idValidation, emailQueryValidation, updateEmailValidation} = require('../middleware/validationUser');
+const { registerValidation, idValidation, emailQueryValidation, updateEmailValidation, getUsersValidation} = require('../middleware/validationUser');
 const upload = require('../middleware/uploadPhoto');
 const router = express.Router();
 
 router.post('/', validate(registerValidation), register);
 
-router.get('/', getUsers);
+router.get('/', validate(getUsersValidation), getUsers);
 router.get('/email', validate(emailQueryValidation), getUserByEmail);
 router.get('/:id', validate(idValidation), getUserById);
 

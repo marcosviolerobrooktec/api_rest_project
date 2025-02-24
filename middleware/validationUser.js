@@ -34,4 +34,12 @@ const registerValidation = {
       email: Joi.string().email().required()
     })
   };
-module.exports = {registerValidation,loginValidation,idValidation,emailQueryValidation,updateEmailValidation};
+
+  const getUsersValidation = {
+    query: Joi.object({
+      name: Joi.string().optional(),
+      email: Joi.string().email().optional(),
+      companyId: Joi.number().integer().optional()
+    })
+  };
+module.exports = {registerValidation,loginValidation,idValidation,emailQueryValidation,updateEmailValidation,getUsersValidation};
