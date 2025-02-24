@@ -26,3 +26,5 @@ sequelize.sync().then(() => {
 }).catch(err => {
   console.error('Error al sincronizar Sequelize:', err);
 });
+
+module.exports = app;
