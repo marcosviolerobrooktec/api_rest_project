@@ -1,8 +1,9 @@
-const {Company} = require('../models');
+const {Company,User} = require('../models');
+const {Op} = require('sequelize');
 
 async function registerCompany(req, res) {
   try {
-    const { name} = req.body;
+    const {name} = req.body;
 
     const existingCompany = await Company.findOne({ where: { name } });
     if (existingCompany) {
@@ -20,12 +21,29 @@ async function registerCompany(req, res) {
 }
 
 async function getCompanies(req, res) {
-    try {
-      const companies = await Company.findAll();
-      res.status(200).json(companies);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+  try {
+    const {name, color} = req.query;
+    const where = {};
+
+    if(name){
+      where.name = {[Op.iLike]: `%${name}%` };
     }
+
+    if(color){
+      where.color = color;
+    }
+
+    const companies = await Company.findAll({where});
+
+    if (!companies || companies.length === 0) {
+      return res.status(404).json({ message: 'Compañía no encontrada' });
+    }
+
+    res.status(200).json(companies);
+  } catch (error) {
+    console.error('Error al obtener la compañía:', error);
+    res.status(500).json({ message: 'Error al obtener la compañia' });
+  }
 }
 
 async function getCompanyById(req, res) {
@@ -42,37 +60,28 @@ async function getCompanyById(req, res) {
     }
 }
 
-async function getCompanyByName(req, res) {
-    const { name } = req.query;
-  
-    try {
-      const company = await Company.findOne({ where: { name: name }});
-  
-      if (!company) {
-        return res.status(404).json({ message: 'Compañía no encontrada' });
+async function getUsersCompany(req,res){
+  const id = req.params.id;
+
+  try{
+    const company = await Company.findOne({ 
+      where: { id: id },
+      attributes: ['id','name','color'],
+      include: {
+        model: User,
+        as: 'users',
+        attributes: {exclude: ['password']}
       }
-  
-      res.status(200).json(company);
-    } catch (error) {
-      console.error('Error al obtener la compañía:', error);
-      res.status(500).json({ message: 'Error al obtener la compañia' });
+    });
+    
+    if(!company){
+      return res.status(404).json({ message: 'Compañía no encontrada' });
     }
+    res.status(200).json(company);
+  } catch (error) {
+    console.error('Error al obtener la compañía con usuarios:', error);
+    res.status(500).json({ message: 'Error al obtener la compañía' });
+  }
 }
 
-async function getCompaniesByColor(req, res) {
-    const { color } = req.query;
-  
-    try {
-      const companies = await Company.findAll({where: { color }});
-  
-      if (!companies || companies.length === 0) {
-        return res.status(404).json({ message: 'No se encontraron compañías con ese color' });
-      }
-  
-      res.status(200).json(companies);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-}
-
-module.exports = {getCompanies, getCompaniesByColor, getCompanyById, getCompanyByName, registerCompany};
+module.exports = {getCompanies, getCompanyById, registerCompany, getUsersCompany};
