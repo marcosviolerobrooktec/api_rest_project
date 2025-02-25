@@ -22,20 +22,24 @@ async function registerCompany(req, res) {
 
 async function getCompanies(req, res) {
   try {
-    const { name } = req.query;
+    const {name, color} = req.query;
     const where = {};
 
     if(name){
       where.name = {[Op.iLike]: `%${name}%` };
     }
 
-    const company = await Company.findAll({where});
+    if(color){
+      where.color = color;
+    }
 
-    if (!company) {
+    const companies = await Company.findAll({where});
+
+    if (!companies || companies.length === 0) {
       return res.status(404).json({ message: 'Compañía no encontrada' });
     }
 
-    res.status(200).json(company);
+    res.status(200).json(companies);
   } catch (error) {
     console.error('Error al obtener la compañía:', error);
     res.status(500).json({ message: 'Error al obtener la compañia' });
@@ -51,22 +55,6 @@ async function getCompanyById(req, res) {
       }
   
       res.status(200).json(company);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-}
-
-async function getCompaniesByColor(req, res) {
-    const { color } = req.query;
-  
-    try {
-      const companies = await Company.findAll({where: { color }});
-  
-      if (!companies || companies.length === 0) {
-        return res.status(404).json({ message: 'No se encontraron compañías con ese color' });
-      }
-  
-      res.status(200).json(companies);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -96,4 +84,4 @@ async function getUsersCompany(req,res){
   }
 }
 
-module.exports = {getCompanies, getCompaniesByColor, getCompanyById, registerCompany, getUsersCompany};
+module.exports = {getCompanies, getCompanyById, registerCompany, getUsersCompany};
