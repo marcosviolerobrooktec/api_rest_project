@@ -7,28 +7,9 @@ const registerValidation = {
     })
   };
 
-  const loginValidation = {
-    body: Joi.object({
-      email: Joi.string().email().required(),
-      password: Joi.string().min(6).required()
-    })
-  };
-
   const idValidation = {
     params: Joi.object({
       id: Joi.number().integer().required()
-    })
-  };
-
-  const idCompanyValidation = {
-    query: Joi.object({
-      companyId: Joi.number().integer().required()
-    })
-  };
-
-  const emailQueryValidation = {
-    query: Joi.object({
-      email: Joi.string().email().required()
     })
   };
 
@@ -44,8 +25,8 @@ const registerValidation = {
   const getUsersValidation = {
     query: Joi.object({
       name: Joi.string().optional(),
-      email: Joi.string().email().optional(),
+      email: Joi.string().optional(),
       companyIds: Joi.array().items(Joi.number()).optional()
     })
   };
-module.exports = {registerValidation,loginValidation,idValidation,emailQueryValidation,updateEmailValidation,getUsersValidation,idCompanyValidation};
+module.exports = {registerValidation,idValidation,updateEmailValidation,getUsersValidation};

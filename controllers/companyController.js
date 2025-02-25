@@ -56,23 +56,6 @@ async function getCompanyById(req, res) {
     }
 }
 
-async function getCompanyByName(req, res) {
-    const { name } = req.query;
-  
-    try {
-      const company = await Company.findOne({ where: { name: name }});
-  
-      if (!company) {
-        return res.status(404).json({ message: 'Compañía no encontrada' });
-      }
-  
-      res.status(200).json(company);
-    } catch (error) {
-      console.error('Error al obtener la compañía:', error);
-      res.status(500).json({ message: 'Error al obtener la compañia' });
-    }
-}
-
 async function getCompaniesByColor(req, res) {
     const { color } = req.query;
   
@@ -113,4 +96,4 @@ async function getUsersCompany(req,res){
   }
 }
 
-module.exports = {getCompanies, getCompaniesByColor, getCompanyById, getCompanyByName, registerCompany,getUsersCompany};
+module.exports = {getCompanies, getCompaniesByColor, getCompanyById, registerCompany, getUsersCompany};
