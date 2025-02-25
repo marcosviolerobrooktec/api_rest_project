@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
         return rawValue ? path.resolve(rawValue) : null;
       }
     },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     companyId: {
       type: DataTypes.INTEGER,
       references: {

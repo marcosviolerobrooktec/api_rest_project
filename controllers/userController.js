@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const path = require('path');
-const {User,Company} = require('../models');
+const {Op} = require('sequelize');
+const {User, Company} = require('../models');
 
 async function register(req, res) {
   try {
@@ -25,7 +25,23 @@ async function register(req, res) {
 
 async function getUsers(req, res) {
   try {
-    const users = await User.findAll({ 
+    const { name, email, companyIds } = req.query;
+
+    const where = {};
+
+    if (name) {
+      where.name = { [Op.iLike]: `%${name}%` };
+    }
+
+    if (email) {
+      where.email = { [Op.iLike]: `%${email}%` }; 
+    }
+
+    if (companyIds) {
+      where.companyId = { [Op.in]: companyIds }; 
+    }
+    const users = await User.findAll({
+      where, 
       attributes: { exclude: ['password'] },
       include: {
         model: Company,
@@ -56,29 +72,6 @@ async function getUserById(req, res) {
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-}
-
-async function getUserByEmail(req, res) {
-  const { email } = req.query;
-
-  try {
-    const user = await User.findOne({ where: { email: email }, attributes: {exclude: ['password']},
-      include: {
-        model: Company,
-        as: 'company',
-        attributes: ['name']
-      } 
-    });
-
-    if (!user) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-
-    res.status(200).json(user);
-  } catch (error) {
-    console.error('Error al obtener el usuario:', error);
-    res.status(500).json({ message: 'Error al obtener el usuario' });
   }
 }
 
@@ -138,4 +131,4 @@ async function updateProfilePhoto(req, res) {
 }
 
 
-module.exports = { register, getUsers, getUserById, getUserByEmail, updateEmail, deleteUser, updateProfilePhoto};
+module.exports = { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto};
