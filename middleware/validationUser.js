@@ -45,7 +45,7 @@ const registerValidation = {
     query: Joi.object({
       name: Joi.string().optional(),
       email: Joi.string().email().optional(),
-      companyIds: Joi.string().optional()
+      companyIds: Joi.array().items(Joi.number()).optional()
     })
   };
 module.exports = {registerValidation,loginValidation,idValidation,emailQueryValidation,updateEmailValidation,getUsersValidation,idCompanyValidation};

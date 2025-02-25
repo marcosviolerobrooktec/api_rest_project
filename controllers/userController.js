@@ -38,9 +38,7 @@ async function getUsers(req, res) {
     }
 
     if (companyIds) {
-      let companyIdArray;
-      companyIdArray = companyIds.split(',').map(id => parseInt(id));
-      where.companyId = { [Op.in]: companyIdArray }; 
+      where.companyId = { [Op.in]: companyIds }; 
     }
     const users = await User.findAll({
       where, 
