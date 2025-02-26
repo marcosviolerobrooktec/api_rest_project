@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const {Op} = require('sequelize');
-const {User, Company} = require('../models');
+const {User, Company, Project} = require('../models');
 
 async function register(req, res) {
   try {
@@ -25,7 +25,7 @@ async function register(req, res) {
 
 async function getUsers(req, res) {
   try {
-    const { name, email, companyIds } = req.query;
+    const { name, email, companyIds, projectId } = req.query;
 
     const where = {};
 
@@ -40,14 +40,27 @@ async function getUsers(req, res) {
     if (companyIds) {
       where.companyId = { [Op.in]: companyIds }; 
     }
+
+    if(projectId){
+      where['$projects.id$'] = projectId;
+    }
+
     const users = await User.findAll({
       where, 
       attributes: { exclude: ['password'] },
-      include: {
-        model: Company,
-        as: 'company',
-        attributes: ['name']
-      }
+      include: [
+        {
+          model: Company,
+          as: 'company',
+          attributes: ['name']
+        },
+        {
+          model: Project,
+          as: 'projects',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
      });
     res.status(200).json(users);
   } catch (error) {
@@ -130,5 +143,30 @@ async function updateProfilePhoto(req, res) {
   }
 }
 
+async function assignUserToProject(req, res) {
+  try {
+    const { userId, projectId } = req.body;
 
-module.exports = { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto};
+    const user = await User.findByPk(userId);
+    const project = await Project.findByPk(projectId);
+
+    if (!user && !project) {
+      return res.status(404).json({ message: ' Ni Usuario ni proyecto existen' });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: 'El usuario no existe' });
+    }
+    if (!project) {
+      return res.status(404).json({ message: 'El proyecto no existe' });
+    }
+
+    await user.addProject(project);
+
+    res.status(200).json({ message: 'Usuario asignado al proyecto correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+module.exports = { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto, assignUserToProject};

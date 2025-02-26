@@ -26,7 +26,15 @@ const registerValidation = {
     query: Joi.object({
       name: Joi.string().optional(),
       email: Joi.string().optional(),
-      companyIds: Joi.array().items(Joi.number()).optional()
+      companyIds: Joi.array().items(Joi.number()).optional(),
+      projectId: Joi.number().integer().optional()
     })
   };
-module.exports = {registerValidation,idValidation,updateEmailValidation,getUsersValidation};
+
+  const assignUserToProjectValidation = {
+    body: Joi.object({
+      userId: Joi.number().integer().required(),
+      projectId: Joi.number().integer().required()
+    })
+  };
+module.exports = {registerValidation,idValidation,updateEmailValidation,getUsersValidation,assignUserToProjectValidation};
