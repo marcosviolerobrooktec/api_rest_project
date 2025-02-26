@@ -31,10 +31,9 @@ const registerValidation = {
     })
   };
 
-  const assignUserToProjectValidation = {
+  const assignProjectsValidation = {
     body: Joi.object({
-      userId: Joi.number().integer().required(),
-      projectId: Joi.number().integer().required()
+      projectIds: Joi.array().items(Joi.number().integer().required()).required()
     })
   };
-module.exports = {registerValidation,idValidation,updateEmailValidation,getUsersValidation,assignUserToProjectValidation};
+module.exports = {registerValidation,idValidation,updateEmailValidation,getUsersValidation,assignProjectsValidation};

@@ -1,13 +1,13 @@
 const express = require('express');
-const { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto,assignUserToProject} = require('../controllers/userController');
+const { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto, assignProjects} = require('../controllers/userController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const { validate } = require('express-validation');
-const { registerValidation, idValidation, updateEmailValidation, getUsersValidation, assignUserToProjectValidation} = require('../middleware/validationUser');
+const { registerValidation, idValidation, updateEmailValidation, getUsersValidation, assignProjectsValidation} = require('../middleware/validationUser');
 const upload = require('../middleware/uploadPhoto');
 const router = express.Router();
 
 router.post('/', validate(registerValidation), register);
-router.post('/assignProject', validate(assignUserToProjectValidation) ,assignUserToProject);
+router.post('/assignProjects', validate(assignProjectsValidation), authenticateToken, assignProjects);
 
 router.get('/', validate(getUsersValidation), getUsers);
 router.get('/:id', validate(idValidation), getUserById);

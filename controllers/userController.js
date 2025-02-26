@@ -143,30 +143,42 @@ async function updateProfilePhoto(req, res) {
   }
 }
 
-async function assignUserToProject(req, res) {
+async function assignProjects(req, res) {
   try {
-    const { userId, projectId } = req.body;
+    const userId = req.user.userId;
+    const {projectIds} = req.body;
 
     const user = await User.findByPk(userId);
-    const project = await Project.findByPk(projectId);
 
-    if (!user && !project) {
-      return res.status(404).json({ message: ' Ni Usuario ni proyecto existen' });
+    const projects = await Project.findAll({
+      where: {
+        id: {
+          [Op.in]: projectIds
+        }
+      }
+    });
+
+    const foundProjectIds = projects.map(project => project.id);
+    const missingProjectIds = projectIds.filter(id => !foundProjectIds.includes(id));
+
+    if (missingProjectIds.length > 0) {
+      return res.status(404).json({ message: 'Los siguientes proyectos no existen', missingProjectIds });
     }
 
-    if (!user) {
-      return res.status(404).json({ message: 'El usuario no existe' });
-    }
-    if (!project) {
-      return res.status(404).json({ message: 'El proyecto no existe' });
+    const existingProjects = await user.getProjects();
+    const existingProjectIds = existingProjects.map(project => project.id);
+    const assignedProjectIds = projectIds.filter(id =>existingProjectIds.includes(id));
+
+    if (assignedProjectIds.length > 0) {
+      return res.status(404).json({ message: 'Los siguientes proyectos ya estaban asignados a este usuario', assignedProjectIds });
     }
 
-    await user.addProject(project);
+    await user.addProjects(projects);
 
-    res.status(200).json({ message: 'Usuario asignado al proyecto correctamente' });
+    res.status(200).json({ message: 'Proyectos asignados correctamente al usuario' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
 
-module.exports = { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto, assignUserToProject};
+module.exports = { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto, assignProjects};
