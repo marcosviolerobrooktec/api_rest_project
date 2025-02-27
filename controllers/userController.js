@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const path = require('path');
 const {Op} = require('sequelize');
-const {User, Company} = require('../models');
+const {User, Company, Project} = require('../models');
 
 async function register(req, res) {
   try {
@@ -25,7 +25,7 @@ async function register(req, res) {
 
 async function getUsers(req, res) {
   try {
-    const { name, email, companyIds } = req.query;
+    const { name, email, companyIds, projectId } = req.query;
 
     const where = {};
 
@@ -40,14 +40,27 @@ async function getUsers(req, res) {
     if (companyIds) {
       where.companyId = { [Op.in]: companyIds }; 
     }
+
+    if(projectId){
+      where['$projects.id$'] = projectId;
+    }
+
     const users = await User.findAll({
       where, 
       attributes: { exclude: ['password'] },
-      include: {
-        model: Company,
-        as: 'company',
-        attributes: ['name']
-      }
+      include: [
+        {
+          model: Company,
+          as: 'company',
+          attributes: ['name']
+        },
+        {
+          model: Project,
+          as: 'projects',
+          attributes: ['id', 'name'],
+          through: { attributes: [] }
+        }
+      ]
      });
     res.status(200).json(users);
   } catch (error) {
@@ -130,5 +143,52 @@ async function updateProfilePhoto(req, res) {
   }
 }
 
+async function assignProjects(req, res) {
+  try {
+    const userId = req.user.userId;
+    const {projectIds} = req.body;
 
-module.exports = { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto};
+    const user = await User.findByPk(userId);
+
+    const projects = await Project.findAll({
+      where: {
+        id: {
+          [Op.in]: projectIds
+        }
+      }
+    });
+
+    const foundProjectIds = projects.map(project => project.id);
+    const missingProjectIds = projectIds.filter(id => !foundProjectIds.includes(id));
+
+    const existingProjects = await user.getProjects();
+    const existingProjectIds = existingProjects.map(project => project.id);
+    const assignedProjectIds = projectIds.filter(id =>existingProjectIds.includes(id));
+    const newProjectIds = projectIds.filter(id =>!existingProjectIds.includes(id) && foundProjectIds.includes(id));
+
+    if (newProjectIds.length > 0) {
+      const newProjects = projects.filter(project => newProjectIds.includes(project.id));
+      await user.addProjects(newProjects);
+    }
+
+    res.status(200).json({ 
+      message: 'Proceso completado',
+      assignedProjects: {
+        description: 'Se han asignado estos proyectos:',
+        projects: newProjectIds
+      },
+      alreadyAssignedProjects: {
+        description: 'Estos proyectos ya estaban asignados:',
+        projects: assignedProjectIds
+      },
+      missingProjects: {
+        description: 'Estos proyectos no existen:',
+        projects: missingProjectIds
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+module.exports = { register, getUsers, getUserById, updateEmail, deleteUser, updateProfilePhoto, assignProjects};
