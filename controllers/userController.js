@@ -161,21 +161,31 @@ async function assignProjects(req, res) {
     const foundProjectIds = projects.map(project => project.id);
     const missingProjectIds = projectIds.filter(id => !foundProjectIds.includes(id));
 
-    if (missingProjectIds.length > 0) {
-      return res.status(404).json({ message: 'Los siguientes proyectos no existen', missingProjectIds });
-    }
-
     const existingProjects = await user.getProjects();
     const existingProjectIds = existingProjects.map(project => project.id);
     const assignedProjectIds = projectIds.filter(id =>existingProjectIds.includes(id));
+    const newProjectIds = projectIds.filter(id =>!existingProjectIds.includes(id) && foundProjectIds.includes(id));
 
-    if (assignedProjectIds.length > 0) {
-      return res.status(404).json({ message: 'Los siguientes proyectos ya estaban asignados a este usuario', assignedProjectIds });
+    if (newProjectIds.length > 0) {
+      const newProjects = projects.filter(project => newProjectIds.includes(project.id));
+      await user.addProjects(newProjects);
     }
 
-    await user.addProjects(projects);
-
-    res.status(200).json({ message: 'Proyectos asignados correctamente al usuario' });
+    res.status(200).json({ 
+      message: 'Proceso completado',
+      assignedProjects: {
+        description: 'Se han asignado estos proyectos:',
+        projects: newProjectIds
+      },
+      alreadyAssignedProjects: {
+        description: 'Estos proyectos ya estaban asignados:',
+        projects: assignedProjectIds
+      },
+      missingProjects: {
+        description: 'Estos proyectos no existen:',
+        projects: missingProjectIds
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
